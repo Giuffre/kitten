@@ -1,0 +1,7 @@
+parameters:
+    allowed_characters: '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+
+services:
+    kitten.redirect_repository:
+        class: Kitten\RedirectBundle\Repository\RedirectRepository
+        arguments: [@service_container, %allowed_characters%] 

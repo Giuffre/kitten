@@ -1,0 +1,8 @@
+kitten_application:
+    resource: "@KittenApplicationBundle/Resources/config/routing.yml"
+    prefix:   /
+
+kitten_redirect:
+    resource: "@KittenRedirectBundle/Resources/config/routing.yml"
+    prefix:   /
+

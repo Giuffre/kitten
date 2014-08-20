@@ -1,0 +1,11 @@
+kitten_redirect_shorten:
+    path:     /shorten
+    defaults: { _controller: KittenRedirectBundle:Redirect:createRedirect }
+    requirements:
+        _method: GET
+
+kitten_redirect_redirect:
+    pattern: /{shorten}
+    defaults: { _controller: KittenRedirectBundle:Redirect:redirect}
+    requirements:
+        # _method: GET
