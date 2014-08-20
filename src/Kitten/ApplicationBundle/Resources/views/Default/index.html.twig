@@ -1,1 +1,50 @@
-Hello, questa sarà un homepage piena di gattini!
+{% extends "::base.html.twig" %}
+{% block body%}
+<div class="row">
+    <form id="shorter" class="form-inline" style="vertical-align:middle;">
+        <div class="col-lg-12">
+            <div class="input-group" style="width: 100%;">
+                <input id="url" type="text" class="form-control" placeHolder="Insert your url...">
+                <span class="input-group-btn" style="width: 10%;">
+                    <button class="btn btn-default" type="submit">Shorten!</button>
+                </span>
+            </div>
+        </div>    
+    </form>
+</div>
+<div class="col-lg-9" style="margin-top:1em">
+    <table id="my-shorten" class="table table-condensed">
+        <thead>
+            <th>#</th>
+            <th>Your url</th>
+            <th>Our cute url!</th>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        $(document).ready(function() {
+            var i = 1;
+            $("form#shorter").submit(function(event) {
+                event.preventDefault();
+                
+                var payload = $("input#url").val();
+                var url = '{{ url("kitten_redirect_shorten") }}';
+                url += "?url=" + payload;
+                
+                var promise = $.get(url);
+                promise.done(function(data) {
+                    var tpl = '<tr><td>' + i +'</td><td>' + data.url + '</td><td><a href="' + data.shorten + '">' + data.shorten +'</a></td></tr>';
+                    console.log(tpl);
+                    console.log($('#my-shorten > tr:last'));
+                    $('#my-shorten > tbody:last').append(tpl);
+                });
+                i++;
+            });
+        });
+    </script>
+{% endblock %}
