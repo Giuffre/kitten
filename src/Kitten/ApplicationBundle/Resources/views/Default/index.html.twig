@@ -13,11 +13,12 @@
     </form>
 </div>
 <div class="col-lg-9" style="margin-top:1em">
-    <table id="my-shorten" class="table table-condensed">
+    <table id="my-shorten" class="table table-condensed" style="display: none;">
         <thead>
             <th>#</th>
             <th>Your url</th>
             <th>Our cute url!</th>
+            <th></th>
         </thead>
         <tbody>
         </tbody>
@@ -38,12 +39,28 @@
                 
                 var promise = $.get(url);
                 promise.done(function(data) {
-                    var tpl = '<tr><td>' + i +'</td><td>' + data.url + '</td><td><a href="' + data.shorten + '">' + data.shorten +'</a></td></tr>';
-                    console.log(tpl);
-                    console.log($('#my-shorten > tr:last'));
+                    var tpl = 
+                        '<tr><td>' 
+                        + i 
+                        + '</td><td>' 
+                        + data.url 
+                        + '</td><td><a id="shorten-' + i +'" href="' + data.shorten + '">' 
+                        + data.shorten +'</a></td><td>' 
+                        + '<button data-id="shorten-' + i + '" type="button" class="btn btn-info btn-xs btn-clipboard">Copy</button>'
+                        + '</td></tr>';
+
                     $('#my-shorten > tbody:last').append(tpl);
+                    $('#my-shorten').show();
+                    i++;
                 });
-                i++;
+            });
+
+            $('button.btn-clipboard').click(function() {
+                var selector = '#' + $(this).attr('data-id');
+                window.alert(selector);
+                var contentClip = $(selector).attr('href');
+                console.log(contentClip);
+                $.copy(contentClip);
             });
         });
     </script>
