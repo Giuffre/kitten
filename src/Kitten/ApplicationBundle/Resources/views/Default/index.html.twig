@@ -1,8 +1,12 @@
 {% extends "::base.html.twig" %}
 {% block body%}
-<div class="row">
+<div class="row" style="
+                    padding-top: 15px;
+                    background-color: rgba(256,256,256, 0.8);
+                    border-radius: 10px;
+                    ">
     <form id="shorter" class="form-inline" style="vertical-align:middle;">
-        <div class="col-lg-12">
+        <div class="col-lg-12" style="margin-right: 0px">
             <div class="input-group" style="width: 100%;">
                 <input id="url" type="text" class="form-control" placeHolder="Insert your url...">
                 <span class="input-group-btn" style="width: 10%;">
@@ -11,57 +15,129 @@
             </div>
         </div>    
     </form>
+    <div class="col-lg-9" style="margin-top:1em">
+        <table id="my-shorten" class="table table-condensed" style="display: none;">
+            <thead>
+                <th>#</th>
+                <th>Your url</th>
+                <th>Our cute url!</th>
+                <th></th>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
 </div>
-<div class="col-lg-9" style="margin-top:1em">
-    <table id="my-shorten" class="table table-condensed" style="display: none;">
-        <thead>
-            <th>#</th>
-            <th>Your url</th>
-            <th>Our cute url!</th>
-            <th></th>
-        </thead>
-        <tbody>
-        </tbody>
-    </table>
+{% endblock %}
+{% block modals%}
+<div id="homepage-malformed-url" class="alert alert-warning alert-dismissible" role="alert">
+    <button type="button" class="close" data-dismiss="alert">
+        <span aria-hidden="true">&times;</span>
+        <span class="sr-only">Close</span>
+    </button>
+  <strong>Oops!</strong> Better check your url, it seems not looking too good.
+</div>
+<div id="homepage-error" class="alert alert-danger alert-dismissible" role="alert">
+    <button type="button" class="close" data-dismiss="alert">
+        <span aria-hidden="true">&times;</span>
+        <span class="sr-only">Close</span>
+    </button>
+  <strong>Oops!</strong> Something goes wrong. Please retry later.
+</div>
+<div id="homepage-info" class="alert alert-info alert-dismissible" role="alert">
+    <button type="button" class="close" data-dismiss="alert">
+        <span aria-hidden="true">&times;</span>
+        <span class="sr-only">Close</span>
+    </button>
+  <strong>Oops!</strong> Seems that we have some problem. Be patitience.
 </div>
 {% endblock %}
 {% block javascripts %}
-    {{ parent() }}
-    <script>
-        $(document).ready(function() {
-            var i = 1;
-            $("form#shorter").submit(function(event) {
-                event.preventDefault();
-                
-                var payload = $("input#url").val();
-                var url = '{{ url("kitten_redirect_shorten") }}';
-                url += "?url=" + payload;
-                
-                var promise = $.get(url);
-                promise.done(function(data) {
-                    var tpl = 
-                        '<tr><td>' 
-                        + i 
-                        + '</td><td>' 
-                        + data.url 
-                        + '</td><td><a id="shorten-' + i +'" href="' + data.shorten + '">' 
-                        + data.shorten +'</a></td><td>' 
-                        + '<button data-id="shorten-' + i + '" type="button" class="btn btn-info btn-xs btn-clipboard">Copy</button>'
-                        + '</td></tr>';
+{{ parent() }}
+<script>
+    $(document).ready(function() {
+        var i = 1;
+        $("form#shorter").submit(function(event) {
+            event.preventDefault();
+            
+            var payload = $("input#url").val();
+            var url = '{{ url("kitten_redirect_shorten") }}';
+            url += "?url=" + payload;
+            
+            var promise = $.get(url);
+            promise.done(function(data) {
+                var tpl = 
+                    '<tr><td>' 
+                    + i 
+                    + '</td><td>' 
+                    + data.url 
+                    + '</td><td><a id="shorten-' + i +'" href="' + data.shorten + '">' 
+                    + data.shorten +'</a></td><td>' 
+                    + '<button data-id="shorten-' + i + '" type="button" class="btn btn-info btn-xs btn-clipboard">Copy</button>'
+                    + '</td></tr>';
 
-                    $('#my-shorten > tbody:last').append(tpl);
-                    $('#my-shorten').show();
-                    i++;
-                });
+                $('#my-shorten > tbody:last').append(tpl);
+                $('#my-shorten').show();
+                i++;
+            });
+            promise.fail(function(data) {
+                var selector = '#homepage-info';
+                switch (data.status) {
+                    case 400:
+                        selector = '#homepage-malformed-url';
+                        break;
+                    case 500:
+                        selector = '#homepage-error';
+                        break;
+                }
+                showAlert(selector);
             });
 
-            $('button.btn-clipboard').click(function() {
-                var selector = '#' + $(this).attr('data-id');
-                window.alert(selector);
-                var contentClip = $(selector).attr('href');
-                console.log(contentClip);
-                $.copy(contentClip);
-            });
         });
-    </script>
+
+        showAlert = function(selector) {
+            $(selector).show(0, hideAlert(selector));
+        }
+
+        hideAlert = function(selector) {
+            $(selector).fadeOut();
+        }
+        
+        $(document).on('click', 'button.btn-clipboard', function() {
+            var identifier = 'a#' + $(this).attr('data-id');
+            var valueToCopy = $(identifier).attr('href');
+
+            window.prompt ("Copy to clipboard: Ctrl+C, Enter", valueToCopy);
+        });
+    });
+</script>
+<script type="text/javascript" src="/js/home.js"></script>
+{% endblock %}
+{% set kittens = [
+    'http://i1368.photobucket.com/albums/ag178/agiuffredi/kitten/kitten4_zps93c692a6.jpg',
+    'http://i1368.photobucket.com/albums/ag178/agiuffredi/kitten/kitten8_zpse752740a.jpg',
+    'http://i1368.photobucket.com/albums/ag178/agiuffredi/kitten/kitten5_zpsa856ff08.jpg',
+    'http://i1368.photobucket.com/albums/ag178/agiuffredi/kitten/kitten6_zps3841e29b.jpg',
+    'http://i1368.photobucket.com/albums/ag178/agiuffredi/kitten/kitten9_zps090472cd.jpg',
+    'http://i1368.photobucket.com/albums/ag178/agiuffredi/kitten/kitten7_zps70128ec6.jpg',
+    'http://i1368.photobucket.com/albums/ag178/agiuffredi/kitten/kitten1_zpsf809370f.jpg',
+    'http://i1368.photobucket.com/albums/ag178/agiuffredi/kitten/kitten14_zps0615ba89.jpg',
+    'http://i1368.photobucket.com/albums/ag178/agiuffredi/kitten/kitten2_zps9b06e18e.jpg',
+    'http://i1368.photobucket.com/albums/ag178/agiuffredi/kitten/kitten10_zps74a0b18a.jpg',
+    'http://i1368.photobucket.com/albums/ag178/agiuffredi/kitten/kitten11_zpscf509426.jpg',
+    'http://i1368.photobucket.com/albums/ag178/agiuffredi/kitten/kitten13_zps23f3a132.jpg',
+    'http://i1368.photobucket.com/albums/ag178/agiuffredi/kitten/kitten12_zpsc99683d1.jpg',
+    'http://i1368.photobucket.com/albums/ag178/agiuffredi/kitten/kitten3_zps8f198d00.jpg',
+]%}
+{% block stylesheets %}
+{{parent()}}
+<link rel="stylesheet" href="/css/style.css"></style>
+<style type="text/css">
+    body {
+        background-image: url('{{random(kittens)}}');
+        background-position: center center;
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
+</style>
 {% endblock %}

@@ -14,16 +14,14 @@ class RedirectController extends Controller
 {
     public function createRedirectAction(Request $request) {
         $url = $request->get('url');
+        $redirectRepository = $this->get('kitten.redirect_repository');
 
-        if (\filter_var($url, FILTER_VALIDATE_URL)) {
-            $redirectRepository = $this->get('kitten.redirect_repository');
+        if ($url = $redirectRepository::sanitizeUrl($url)) {
             $redirect = $redirectRepository->generateSource($url);
+            $shorten = $this->generateUrl('kitten_redirect_redirect', array('shorten' => $redirect->getSource()), true);
+
             if ($redirect instanceof Redirect) {
-                return new JsonResponse(array(
-                    'url' => $url, 
-                    'shorten' => $this->generateUrl('kitten_redirect_redirect', array('shorten' => $redirect->getSource()), true),
-                    )
-                );
+                return new JsonResponse(array('url' => $url, 'shorten' => $shorten));
             }
         }
 
@@ -35,6 +33,7 @@ class RedirectController extends Controller
         $redirect = $entityManager->getRepository('KittenRedirectBundle:Redirect')->findOneBySource($shorten);
         if ($redirect instanceof Redirect) {
             $destination = $redirect->getDestination();
+            
             return new RedirectResponse($destination, 301);
         }
 

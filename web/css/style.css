@@ -1,0 +1,9 @@
+div#homepage-malformed-url,
+div#homepage-error,
+div#homepage-info {
+    display: none;
+    position: absolute;
+    top: 40%;
+    left: 24%;
+    font-size: 1.5em;
+}
